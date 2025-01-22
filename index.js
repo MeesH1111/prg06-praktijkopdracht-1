@@ -11,7 +11,7 @@ app.use(express.urlencoded({extended: true}));
 
 app.use((req, res, next) => {
     const acceptHeader = req.headers['accept'];
-    console.log(`Client accepteert: ${acceptHeader}`);
+    // console.log(`Client accepteert: ${acceptHeader}`);
 
     if (acceptHeader.includes('application/json') || req.method === 'OPTIONS') {
         next()
@@ -23,10 +23,16 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*")
-    res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
-    res.setHeader("Access-Control-Allow-Methods", "GET,PUT,OPTION")
-    next()
-})
+    res.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization")
+    res.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS")
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(204); // No Content
+    }
+
+    next();
+});
 
 // Cache-Control toevoegen
 

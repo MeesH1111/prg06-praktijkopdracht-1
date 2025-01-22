@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const deckSchema = new mongoose.Schema({
     title: {type: String,},
     price: {type: Number,},
-    size: {type: String,},
+    size: {type: Number,},
     body: {type: String,},
     // Size moet eigenlijk Number zijn maar dan werkt de checker niet. Dit later veranderen!
 }, {

@@ -7,9 +7,9 @@ import DecksRouter from "./decksRouter.js";
 const decksRouter = new Router()
 
 const validateFields = (req, res, next) => {
-    const { title, size, body } = req.body
+    const { title, size, price, body } = req.body
 
-    if (!title || !size || !body ) {
+    if (!title || !size || !price || !body ) {
         return res.status(400).json({error: 'Alle velden moeten ingevuld zijn'})
     }
     // Ook hier moet nog price bij, maar met checker werkt dat niet omdat het een Number is (DeckSchema). Dit later veranderen!
@@ -83,24 +83,27 @@ decksRouter.post('/decks', validateFields, async (req, res) => {
 });
 
 decksRouter.put('/decks/:id', validateFields, async (req, res) => {
-    const title = req.body.title
-    const price = req.body.price
-    const size = req.body.size
-    const body = req.body.body
+    try {
+        const { title, price, size, body } = req.body;
+        const id = req.params.id;
+        const deckToUpdate = await Deck.findById(id);
 
+        if (!deckToUpdate) {
+            return res.status(404).json({ message: "Deck not found" });
+        }
 
-    const id = req.params.id
-    const deckToUpdate = await Deck.findById(id)
+        deckToUpdate.title = title;
+        deckToUpdate.price = price;
+        deckToUpdate.size = size;
+        deckToUpdate.body = body;
 
-    deckToUpdate.title = title;
-    deckToUpdate.price = price;
-    deckToUpdate.size = size;
-    deckToUpdate.body = body;
-
-    const updateDeck = await deckToUpdate.save()
-    res.json(updateDeck);
-
-})
+        const updateDeck = await deckToUpdate.save();
+        res.status(200).json({ updateDeck });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
 
 decksRouter.delete('/decks/:id', async (req, res) => {
     const id = req.params.id
